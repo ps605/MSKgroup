@@ -1,0 +1,37 @@
+function  model = markerTracking( labelNames, model )
+% Function that will add PointKinematics for EACH point wanted in the GROUND inertial frame. (Needs to
+% be improved in the future to include all the markers for specified body.
+% 
+% IN:   labelNames: 1xn cell - Srings of the Opensim marker names wanted to
+%       track
+%       model: org.opensim.modeling - Model you want   
+%   
+% OUT:  model: org.opensim.modeling - Model passed to function with added PointKinematics
+% 
+% Pavlos Silvestros, University of Bath, 2017
+
+import org.opensim.modeling.*
+
+groundBody=model.getBodySet().get('ground');
+
+for iMarker=1:numel(labelNames)
+    
+%   Get marker offset and body is connected to 
+    marker=model().getMarkerSet.get(labelNames{iMarker});
+    markerOffset=marker.getOffset();
+    markerBody=marker.getBody();
+    
+%   Pass the marker information to PointKinematics tool  
+    pkMarker=PointKinematics(model);
+    pkMarker.setBody(markerBody);
+    pkMarker.setRelativeToBody(groundBody);
+    pkMarker.setPointName(labelNames{iMarker});
+    pkMarker.setPoint(markerOffset);
+    
+%   Add PointKinematics to model  
+    model.addAnalysis(pkMarker);
+    
+    clear marker pkMarker
+    
+end
+end
